@@ -1,3 +1,6 @@
+PROVIDER = "replicate"
+REPLICATE_MODEL = "meta/llama-2-7b-chat:52551facc68363358effaacb0a52b5351843e2d3bf14f58aff5f0b82d756078c"
+
 CONTEXT_SIZE = 4096
 MAX_TOKENS = 512
 
@@ -7,8 +10,12 @@ MODELS = {
 }
 
 import streamlit as st
-import json, openai, os, tiktoken
+
+import json, os
 from datetime import datetime
+
+import openai, tiktoken
+import replicate
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
@@ -31,9 +38,7 @@ dialog = lambda us: '\n'.join([{"user": st.session_state.human, "assistant": st.
 
 get_stamp = lambda c: datetime.now().strftime(f"%Y%m%d{c}%H%M%S")
 
-def utter(utterance, model_family="chat"):
-    system = '\n'.join([st.session_state.background, st.session_state.setup])
-
+def openai_utter(utterance, system, model_family="chat"):
     response, error = '', ''
     try:
         if "chat" == model_family:
@@ -70,6 +75,37 @@ def utter(utterance, model_family="chat"):
         error = f"OpenAI API service unavailable: {e}"
         pass
     return response.rstrip(), error
+
+def replicate_utter(utterance, system, _):
+    userify = lambda u: f"[INST] {u} [/INST]"
+
+    messages = [userify(u) if "user" == r else r for r, u in st.session_state.utterances]
+    messages.append(userify(utterance))
+
+    output = replicate.run(
+        REPLICATE_MODEL,
+        input={
+            "prompt": '\n'.join(messages),
+            "system": system
+        }
+    )
+
+    sequence = list()
+    try:
+        for token in output:
+            sequence.append(token)
+        response, error = ''.join(sequence), ''
+    except:
+        response, error = '', "Replicate API returned an error"
+
+    return response.rstrip(), error
+
+
+def utter(utterance, model_family="chat"):
+    system = '\n'.join([st.session_state.background, st.session_state.setup])
+
+    f = openai_utter if "openai" == PROVIDER else replicate_utter
+    return f(utterance, system, model_family)
 
 boldify = lambda l: ("**" + l.replace(":", "**:", 1)) if l.startswith(st.session_state.human) or l.startswith(st.session_state.assistant) else l
 
@@ -118,7 +154,6 @@ def save():
         + sum([len(enc.encode(u)) for (_, u) in st.session_state.utterances])
     if 0.9 * (CONTEXT_SIZE - MAX_TOKENS) < n_tokens:
         st.session_state.speakable = False
-
     
 def upload(name="default"):
 

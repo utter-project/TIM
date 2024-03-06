@@ -1,3 +1,5 @@
-streamlit
 openai
+replicate
+streamlit
 tiktoken
+watchdog

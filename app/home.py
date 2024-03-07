@@ -1,12 +1,12 @@
+import openai
 import streamlit as st
 
-from app.common import dialog, boldify, go_back, save, upload, utter, get_stamp
+from app.common import save, upload, get_stamp
+from app.common import PARAMETERS, parameters, provider
 
-print("top")
+client = openai.Client(base_url=PARAMETERS[provider]["base_url"], api_key=PARAMETERS[provider]["api_key"])
 
-help = """`speak` sends your utterance to the agent,  
-`retry` requests an alternate response from the agent,  
-`revert` suppresses both your previous utterance and the response from the agent from the conversation.
+help = """`speak` sends your utterance to the agent. Its answer is then streams back to you.
 
 Note that the conversation is saved to a log file after each turn of utterance and response.
 """
@@ -18,58 +18,47 @@ if "scenario" not in st.session_state:
     else:
         upload("default")
 
-tab1, tab2, tab3 = st.tabs([":robot_face: Welcome", ":speech_balloon: Conversation", ":information_source: Help"])
+st.subheader(st.session_state.scenario)
 
-with tab1:
-    st.subheader(st.session_state.scenario)
+if "messages" not in st.session_state:
+    st.session_state.messages = [{
+            "role": "system",
+            "content": '\n'.join([st.session_state.background, st.session_state.setup])
+        }]
+
+for message in st.session_state.messages[1:]:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+if prompt := st.chat_input("can I ask you something?"):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    with st.chat_message("assistant"):
+        stream = client.chat.completions.create(**{
+                **parameters,
+                **{
+                    "model": parameters["model"],
+                    "messages": [
+                        {"role": m["role"], "content": m["content"]}
+                        for m in st.session_state.messages
+                    ],
+                    "stream": True,
+                }
+            }
+        )
+        response = st.write_stream(stream)
+    st.session_state.messages.append({"role": "assistant", "content": response})
+
+save()
+
+with st.sidebar:
+    st.subheader(":robot_face: about this agent")
     if "help" in st.session_state:
         st.markdown(st.session_state.help)
     st.image("assets/tim.jpeg")
+    st.divider()
 
-with tab2:
-    # this is quite hacky...
-    if "FormSubmitter:dialog-Retry" in st.session_state\
-    or "FormSubmitter:dialog-Revert" in st.session_state:
-        if st.session_state["FormSubmitter:dialog-Retry"]\
-        or st.session_state["FormSubmitter:dialog-Revert"]:
-            go_back()
-
-    st.subheader(st.session_state.scenario)
-
-    if "utterances" not in st.session_state:
-        st.session_state.utterances = list()
-
-    with st.form("dialog"):
-        utterance = st.text_input(st.session_state.human, key="utterance")
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            submit = st.form_submit_button(label="Speak", disabled=not st.session_state.speakable)
-        with c2:
-            if utterance:
-                retry = st.form_submit_button(label="Retry")
-            else:
-                retry = ''
-        with c3:
-            if utterance:
-                revert = st.form_submit_button(label="Revert")
-            else:
-                revert = ''
-
-        if submit or retry:
-            if '' != utterance:
-                answer, error = utter(utterance)
-                warning = "sorry but the agent couldn't answer. You might want to try again..."
-                if '' != error:
-                    print(get_stamp(':'), error)
-                    st.warning(warning, icon="😵‍💫")
-                else:
-                    st.session_state.utterances.append(("user", utterance))
-                    st.session_state.utterances.append(("assistant", answer))
-
-    for l in dialog(st.session_state.utterances[::-1]).split('\n'):
-        st.write(boldify(l))
-
-    save()
-
-with tab3:
+    st.subheader(":information_source: if you need some help")
     st.markdown(help)

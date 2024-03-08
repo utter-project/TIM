@@ -20,12 +20,6 @@ if "scenario" not in st.session_state:
 
 st.subheader(st.session_state.scenario)
 
-if "messages" not in st.session_state:
-    st.session_state.messages = [{
-            "role": "system",
-            "content": '\n'.join([st.session_state.background, st.session_state.setup])
-        }]
-
 for message in st.session_state.messages[1:]:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
@@ -54,10 +48,12 @@ if prompt := st.chat_input("can I ask you something?"):
 save()
 
 with st.sidebar:
+    st.image("assets/tim.png")
+    st.divider()
+
     st.subheader(":robot_face: about this agent")
     if "help" in st.session_state:
         st.markdown(st.session_state.help)
-    st.image("assets/tim.jpeg")
     st.divider()
 
     st.subheader(":information_source: if you need some help")

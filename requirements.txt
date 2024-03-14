@@ -1,3 +1,4 @@
-openai
+lanchain
+langchain-openai
 streamlit
 watchdog

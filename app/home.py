@@ -1,11 +1,15 @@
-import openai
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
 import streamlit as st
 
-from app.common import save, upload, get_stamp
-from app.common import PARAMETERS, parameters, provider
+from app.common import get_role, MODELS, parameters, provider, save, upload
 
-client = openai.Client(base_url=PARAMETERS[provider]["base_url"], api_key=PARAMETERS[provider]["api_key"])
-
+llm = ChatOpenAI(**{
+        **{"base_url": MODELS[provider]["base_url"], "api_key": MODELS[provider]["api_key"]},
+        **parameters
+    })
 help = """`speak` sends your utterance to the agent. Its answer is then streams back to you.
 
 Note that the conversation is saved to a log file after each turn of utterance and response.
@@ -21,29 +25,18 @@ if "scenario" not in st.session_state:
 st.subheader(st.session_state.scenario)
 
 for message in st.session_state.messages[1:]:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+    with st.chat_message(get_role(message)):
+        st.markdown(message.content)
 
-if prompt := st.chat_input("can I ask you something?"):
-    st.session_state.messages.append({"role": "user", "content": prompt})
+if utterance := st.chat_input("can I ask you something?"):
+    st.session_state.messages.append(HumanMessage(content=utterance))
     with st.chat_message("user"):
-        st.markdown(prompt)
+        st.markdown(utterance)
 
     with st.chat_message("assistant"):
-        stream = client.chat.completions.create(**{
-                **parameters,
-                **{
-                    "model": parameters["model"],
-                    "messages": [
-                        {"role": m["role"], "content": m["content"]}
-                        for m in st.session_state.messages
-                    ],
-                    "stream": True,
-                }
-            }
-        )
+        stream = llm.stream(st.session_state.messages)
         response = st.write_stream(stream)
-    st.session_state.messages.append({"role": "assistant", "content": response})
+        st.session_state.messages.append(AIMessage(content=response))
 
 save()
 

@@ -1,34 +1,36 @@
 import json, os
 import streamlit as st
 from datetime import datetime
+import langchain_core
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 
-CONTEXT_SIZE = 8192
-MAX_TOKENS = 512
-
-PARAMETERS = {
+MODELS = {
     "LMStudio": {"model": "local-model", "api_key": "not-needed", "base_url": "http://localhost:1234/v1"},
     "openai": {"model": "gpt-3.5-turbo",  "api_key": os.environ["OPENAI_API_KEY"], "base_url": "https://api.openai.com/v1"}
 }
 
-default = {"max_tokens": MAX_TOKENS,
+default = {
     "temperature": 1,
     "top_p": 0.92,
 }
 
 provider = os.environ["llm_provider"]
 parameters = default.copy()
-parameters["model"] = PARAMETERS[provider]["model"]
+parameters["model"] = MODELS[provider]["model"]
 
 get_stamp = lambda c: datetime.now().strftime(f"%Y%m%d{c}%H%M%S")
+
+get_role = lambda m: {AIMessage: "assistant", HumanMessage: "human", SystemMessage: "system"}[type(m)]
+serialize_messages = lambda ms: [{"role": get_role(m), "content": m.content} for m in ms]
 
 def save():
     interaction = {
         "scenario": st.session_state.scenario,
         "human": st.session_state.human,
         "assistant": st.session_state.assistant,
-        "messages": st.session_state.messages,
-        "model": PARAMETERS[provider]["model"],
+        "messages": serialize_messages(st.session_state.messages),
+        "model": MODELS[provider]["model"],
     }
     if "help" in st.session_state:
         interaction["help"] = st.session_state.help
@@ -70,9 +72,7 @@ def upload(name="default"):
                 system[part] = '\n'.join(f.readlines())
         except:
                 system[part] = ""
-
     if "messages" not in st.session_state:
-        st.session_state.messages = [{
-            "role": "system",
-            "content": '\n'.join([system[part] for p in parts])
-        }]
+        st.session_state.messages = [
+                SystemMessage(content='\n'.join([system[p] for p in parts]))
+            ]

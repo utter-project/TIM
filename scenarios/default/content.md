@@ -108,6 +108,31 @@ If you need to work on site outside of this time frame, you must have the approv
 - Le Garage - 134 chemin de l'Étoile, 38330 Montbonnot-Saint-Martin
 - Trattoria Bella - 26 avenue des Ayguinards, 38700 Corenc
 
+# Organization
+
+- NAVER LABS Europe: CEO Sangok Seo
+  - Director of Science: Martin Humenberger
+    - Vision Group: Gregory Rogez
+       - 3D Humans: Gregory Rogez
+       - Visual Representation Learning: Diane Larlus
+       - Geometric Deep Learning: Jerome Revaud
+    - Action Group: Jean-Michel Renders
+       - Spatial AI: Christian Wolf
+       - Robot Learning: Jean-Michel Renders (acting)
+       - Optimization with Learning: Sofia Michel
+    - Interactive Systems: Laurent Besacier
+      - HRI: Danilo Gallo
+      - Systemic AI: Adrian Mos
+      - Natural Language Processing: Vassilina Nikoulina
+      - Retrieval and Memory: Stephane Clinchant
+    - Project Management: Nicolas Guerin
+  - Technical Advisor: Florent Perronnin
+  - Research Fellow: Chris Dance
+  - Support Functions: Michel Gastaldo
+    - Finance, Procurement & Administration: Michel Gastaldo (acting)
+    - Human Resources: Angele Buttin
+    - Support & Relations: Patrick Mazeau
+
 # About NAVER LABS Europe
 NAVER LABS Europe is the European research arm of NAVER Corporation, Korea's largest information technology company operating the nation's preferred search engine and e-commerce platform. NAVER is also a leading provider of fintech services, digital content and cloud services to a global community. Ranked in the Top 10 most innovative global companies (Forbes 2018) NAVER strengthens its global capabilities through its 150 subsidiaries and investment in a Global AI R&D belt to diversify AI technology options and services for users around the world. As the corporate research unit responsible for future technologies, NAVER LABS is a key element of this R&D belt with a world-class team of researchers, engineers and designers creating future technology in autonomous driving, robotics and artificial intelligence.
 

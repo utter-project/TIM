@@ -7,13 +7,13 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 MODELS = {
     "LMStudio": {"model": "local-model", "api_key": "not-needed", "base_url": "http://localhost:1234/v1"},
-    "openai": {"model": "gpt-3.5-turbo",  "api_key": os.environ["OPENAI_API_KEY"], "base_url": "https://api.openai.com/v1"}
+    "openai": {"model": "gpt-3.5-turbo",  "api_key": os.environ["OPENAI_API_KEY"], "base_url": "https://api.openai.com/v1"},
+    "anthropic": {"model": "claude-3-haiku-20240307", "api_key": os.environ["ANTHROPIC_API_KEY"], "base_url": "https://api.anthropic.com"}
 }
 
 default = {
-    "temperature": 1,
-    "top_p": 0.92,
-}
+        "temperature": 0.3
+    }
 
 provider = os.environ["llm_provider"]
 parameters = default.copy()

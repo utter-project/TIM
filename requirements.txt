@@ -1,4 +1,5 @@
 lanchain
 langchain-openai
+langchain-antropic
 streamlit
 watchdog

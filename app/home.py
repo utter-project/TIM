@@ -1,4 +1,5 @@
 from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -6,10 +7,17 @@ import streamlit as st
 
 from app.common import get_role, MODELS, parameters, provider, save, upload
 
-llm = ChatOpenAI(**{
-        **{"base_url": MODELS[provider]["base_url"], "api_key": MODELS[provider]["api_key"]},
-        **parameters
-    })
+if "anthropic" == provider:
+    llm = ChatAnthropic(**{
+            **{"anthropic_api_url": MODELS[provider]["base_url"], "anthropic_api_key": MODELS[provider]["api_key"]},
+            **parameters
+        })
+else:
+    llm = ChatOpenAI(**{
+            **{"base_url": MODELS[provider]["base_url"], "api_key": MODELS[provider]["api_key"]},
+            **parameters
+        })
+
 help = """`speak` sends your utterance to the agent. Its answer is then streams back to you.
 
 Note that the conversation is saved to a log file after each turn of utterance and response.

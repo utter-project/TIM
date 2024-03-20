@@ -3,5 +3,9 @@
     "human": "Newcomer",
     "assistant": "Tim",
     "utterances": [],
-    "help": "you're a newcomer? Don't stress, Tim is there to help. Do not hesitate to ask them."
+    "help": "you're a newcomer? Don't stress, Tim is there to help. Do not hesitate to ask them.",
+    "filters" : [
+            "be expressed in English, in French, or in Korean.",
+            "be expected from a newcomer joining a company and asking lots of question about it."
+        ]
 }

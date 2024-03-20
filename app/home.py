@@ -17,6 +17,8 @@ else:
             **{"base_url": MODELS[provider]["base_url"], "api_key": MODELS[provider]["api_key"]},
             **parameters
         })
+    
+parser = StrOutputParser()
 
 help = """`speak` sends your utterance to the agent. Its answer is then streams back to you.
 
@@ -30,6 +32,20 @@ if "scenario" not in st.session_state:
     else:
         upload("default")
 
+def check(utterance, filters=st.session_state.filters, llm=llm, parser=parser):
+
+    system = """You are a filter. Respond GO to the utterance if it respects the following guidelines, else give a polite but very short explanation, in English, if you decide to reject it.\n
+A valid utterance should:
+{}""".format("- " + "\n- ".join(filters))
+
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", system),
+        ("user", "{input}")
+    ])
+    chain = prompt | llm | parser
+
+    return chain.invoke({"input": utterance})
+
 st.subheader(st.session_state.scenario)
 
 for message in st.session_state.messages[1:]:
@@ -41,10 +57,17 @@ if utterance := st.chat_input("can I ask you something?"):
     with st.chat_message("user"):
         st.markdown(utterance)
 
-    with st.chat_message("assistant"):
-        stream = llm.stream(st.session_state.messages)
-        response = st.write_stream(stream)
-        st.session_state.messages.append(AIMessage(content=response))
+    pre_check = check(utterance)
+    if "GO" == pre_check:
+        with st.chat_message("assistant"):
+            stream = llm.stream(st.session_state.messages)
+            response = st.write_stream(stream)
+            st.session_state.messages.append(AIMessage(content=response))
+    else:
+        with st.chat_message("assistant"):
+            st.markdown(pre_check)
+        st.session_state.messages.append(AIMessage(content=pre_check))
+
 
 save()
 

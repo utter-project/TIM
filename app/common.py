@@ -29,6 +29,7 @@ def save():
         "scenario": st.session_state.scenario,
         "human": st.session_state.human,
         "assistant": st.session_state.assistant,
+        "filters": st.session_state.filters,
         "messages": serialize_messages(st.session_state.messages),
         "model": MODELS[provider]["model"],
     }
@@ -49,20 +50,17 @@ def upload(name="default"):
     location = "scenarios"
     ok = True
     try:
-        interaction = json.loads(open (f"./{location}/{name}/config.json", "r").read())
+        scenario = json.loads(open (f"./{location}/{name}/config.json", "r").read())
     except:
         ok = False
 
     if ok:
-        if "show_context" in interaction :
-            st.session_state.show_context = interaction["show_context"]
-        else:
-            st.session_state.show_context = True
-        st.session_state.scenario = interaction["scenario"]
-        if "help" in interaction:
-            st.session_state.help = interaction["help"]
-        st.session_state.human = interaction["human"] if "human" in interaction else "Human"
-        st.session_state.assistant = interaction["assistant"] if "assistant" in interaction else "Agent"
+        st.session_state.scenario = scenario["scenario"]
+        if "help" in scenario:
+            st.session_state.help = scenario["help"]
+        st.session_state.human = scenario["human"] if "human" in scenario else "Human"
+        st.session_state.assistant = scenario["assistant"] if "assistant" in scenario else "Agent"
+        st.session_state.filters = scenario["filters"]
 
     system = dict()
     parts = ["persona", "principles", "content"]

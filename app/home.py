@@ -1,7 +1,7 @@
 from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage, AIMessage
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 import streamlit as st
 
@@ -32,19 +32,19 @@ if "scenario" not in st.session_state:
     else:
         upload("default")
 
-def check(utterance, filters=st.session_state.filters, llm=llm, parser=parser):
+def check(llm=llm, parser=parser):
 
-    system = """You are a filter. Respond GO to the utterance if it respects the following guidelines, else give a polite but very short explanation, in English, if you decide to reject it.\n
+    system = """You act as a filter in front of a specialized agent. Respond GO to the utterance if it respects all the following guidelines, otherwise explain politely that you cannot answer that request, with a short, to the point, justification, in English, if you decide to reject it.\n
 A valid utterance should:
-{}""".format("- " + "\n- ".join(filters))
+{}""".format("- " + "\n- ".join(st.session_state.filters))
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", system),
-        ("user", "{input}")
+         MessagesPlaceholder(variable_name="messages"),
     ])
     chain = prompt | llm | parser
 
-    return chain.invoke({"input": utterance})
+    return chain.invoke({"messages": st.session_state.messages[1::]})
 
 st.subheader(st.session_state.scenario)
 
@@ -52,12 +52,12 @@ for message in st.session_state.messages[1:]:
     with st.chat_message(get_role(message)):
         st.markdown(message.content)
 
-if utterance := st.chat_input("can I ask you something?"):
+if utterance := st.chat_input("try me!"):
     st.session_state.messages.append(HumanMessage(content=utterance))
     with st.chat_message("user"):
         st.markdown(utterance)
 
-    pre_check = check(utterance)
+    pre_check = check()
     if "GO" == pre_check:
         with st.chat_message("assistant"):
             stream = llm.stream(st.session_state.messages)
@@ -72,7 +72,7 @@ if utterance := st.chat_input("can I ask you something?"):
 save()
 
 with st.sidebar:
-    st.image("assets/tim.png")
+    st.image("assets/nle.png")
     st.divider()
 
     st.subheader(":robot_face: about this agent")

@@ -1,11 +1,11 @@
 {
-    "scenario": "Welcome to Naver Labs Europe",
+    "scenario": "Can I help you, Newcomer?",
     "human": "Newcomer",
     "assistant": "Tim",
     "utterances": [],
-    "help": "you're a newcomer? Don't stress, Tim is there to help. Do not hesitate to ask them.",
+    "help": "you're a newcomer? Don't stress, this agent can help. Ask any legitimate questions, in English, French or Korean.",
     "filters" : [
-            "be expressed in English, in French, or in Korean.",
-            "be expected from a newcomer joining a company and asking lots of question about it."
+            "be expected by an agent tasked to welcome newcomers at a company.",
+            "be expressed in English, French, or Korean."
         ]
 }

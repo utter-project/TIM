@@ -1,11 +1,8 @@
 {
-    "scenario": "Can I help you, Newcomer?",
-    "human": "Newcomer",
-    "assistant": "Tim",
+    "scenario": "Can I help you, Human?",
+    "human": "Human",
+    "assistant": "Assistant",
     "utterances": [],
-    "help": "you're a newcomer? Don't stress, this agent can help. Ask any legitimate questions, in English, French or Korean.",
-    "filters" : [
-            "be expected by an agent tasked to welcome newcomers at a company.",
-            "be expressed in English, French, or Korean."
-        ]
+    "help": "Just ask, I'll answer.",
+    "provider": "openai"
 }

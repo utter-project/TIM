@@ -5,7 +5,17 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 import streamlit as st
 
-from app.common import get_role, MODELS, parameters, provider, save, upload
+from app.common import get_role, MODELS, parameters, save, upload
+
+if "scenario" not in st.session_state:
+    params = st.query_params
+    if "scenario" in params:
+        upload(params["scenario"])
+    else:
+        upload("default")
+
+provider = st.session_state.provider
+parameters["model"] = MODELS[provider]["model"]
 
 if "anthropic" == provider:
     llm = ChatAnthropic(**{
@@ -20,21 +30,12 @@ else:
     
 parser = StrOutputParser()
 
-help = """`speak` sends your utterance to the agent. Its answer is then streams back to you.
-
-Note that the conversation is saved to a log file after each turn of utterance and response.
-"""
-
-if "scenario" not in st.session_state:
-    params = st.query_params
-    if "scenario" in params:
-        upload(params["scenario"][0])
-    else:
-        upload("default")
+help = """Note that the conversation is saved to a log file after each turn of utterance and response."""
 
 def check(llm=llm, parser=parser):
 
-    system = """You act as a filter in front of a specialized agent. Respond GO to the utterance if it respects all the following guidelines, otherwise explain politely that you cannot answer that request, with a short, to the point, justification, in English, if you decide to reject it.\n
+    system = """You act as a filter in front of a specialized agent.
+Respond GO to the utterance if it respects all the following guidelines, otherwise explain politely that you cannot answer that request, with a short, to the point, justification, in English, if you decide to reject it.\n
 A valid utterance should:
 {}""".format("- " + "\n- ".join(st.session_state.filters))
 
@@ -57,17 +58,19 @@ if utterance := st.chat_input("try me!"):
     with st.chat_message("user"):
         st.markdown(utterance)
 
+    # all inputs are first checked by a filtering LLM
     pre_check = check()
     if "GO" == pre_check:
+        # answer from the main model, streamed
         with st.chat_message("assistant"):
             stream = llm.stream(st.session_state.messages)
             response = st.write_stream(stream)
             st.session_state.messages.append(AIMessage(content=response))
     else:
+        # answer from the filtering model
         with st.chat_message("assistant"):
             st.markdown(pre_check)
         st.session_state.messages.append(AIMessage(content=pre_check))
-
 
 save()
 

@@ -12,12 +12,10 @@ MODELS = {
 }
 
 default = {
-        "temperature": 0.3
+        "temperature": 0.6
     }
 
-provider = os.environ["llm_provider"]
 parameters = default.copy()
-parameters["model"] = MODELS[provider]["model"]
 
 get_stamp = lambda c: datetime.now().strftime(f"%Y%m%d{c}%H%M%S")
 
@@ -31,7 +29,7 @@ def save():
         "assistant": st.session_state.assistant,
         "filters": st.session_state.filters,
         "messages": serialize_messages(st.session_state.messages),
-        "model": MODELS[provider]["model"],
+        "provider": MODELS[st.session_state.provider],
     }
     if "help" in st.session_state:
         interaction["help"] = st.session_state.help
@@ -46,7 +44,7 @@ def save():
         json.dump(interaction, json_file)
     
 def upload(name="default"):
-
+    print(name)
     location = "scenarios"
     ok = True
     try:
@@ -60,7 +58,8 @@ def upload(name="default"):
             st.session_state.help = scenario["help"]
         st.session_state.human = scenario["human"] if "human" in scenario else "Human"
         st.session_state.assistant = scenario["assistant"] if "assistant" in scenario else "Agent"
-        st.session_state.filters = scenario["filters"]
+        st.session_state.filters = scenario["filters"] if "filters" in scenario.keys() else ["be polite."]
+        st.session_state.provider = scenario["provider"]
 
     system = dict()
     parts = ["persona", "principles", "content"]

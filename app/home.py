@@ -14,23 +14,24 @@ if "scenario" not in st.session_state:
     else:
         upload("default")
 
-provider = st.session_state.provider
-parameters["model"] = MODELS[provider]["model"]
+utterer = st.session_state.utterer
+parameters["model"] = MODELS[utterer]["model"]
 
-if "anthropic" == provider:
+if utterer.startswith("anthropic"):
     llm = ChatAnthropic(**{
-            **{"anthropic_api_url": MODELS[provider]["base_url"], "anthropic_api_key": MODELS[provider]["api_key"]},
+            **{"anthropic_api_url": MODELS[utterer]["base_url"], "anthropic_api_key": MODELS[utterer]["api_key"]},
             **parameters
         })
 else:
     llm = ChatOpenAI(**{
-            **{"base_url": MODELS[provider]["base_url"], "api_key": MODELS[provider]["api_key"]},
+            **{"base_url": MODELS[utterer]["base_url"], "api_key": MODELS[utterer]["api_key"]},
             **parameters
         })
     
 parser = StrOutputParser()
 
 help = """Note that the conversation is saved to a log file after each turn of utterance and response."""
+extract = lambda ms: [m for _, m in ms]
 
 def check(llm=llm, parser=parser):
 
@@ -45,32 +46,32 @@ A valid utterance should:
     ])
     chain = prompt | llm | parser
 
-    return chain.invoke({"messages": st.session_state.messages[1::]})
+    return chain.invoke({"messages": extract(st.session_state.messages[1::])})
 
-st.subheader(st.session_state.scenario)
+st.subheader(st.session_state.welcome)
 
-for message in st.session_state.messages[1:]:
+for (source, message) in st.session_state.messages[1:]:
     with st.chat_message(get_role(message)):
-        st.markdown(message.content)
+        st.markdown(((st.session_state.filter_emoji + " ") if "filter" == source else "") + message.content)
 
 if utterance := st.chat_input("try me!"):
-    st.session_state.messages.append(HumanMessage(content=utterance))
+    st.session_state.messages.append(("chat_input", HumanMessage(content=utterance)))
     with st.chat_message("user"):
         st.markdown(utterance)
 
     # all inputs are first checked by a filtering LLM
     pre_check = check()
-    if "GO" == pre_check:
+    if pre_check.startswith("GO"):
         # answer from the main model, streamed
         with st.chat_message("assistant"):
-            stream = llm.stream(st.session_state.messages)
+            stream = llm.stream(extract(st.session_state.messages))
             response = st.write_stream(stream)
-            st.session_state.messages.append(AIMessage(content=response))
+            st.session_state.messages.append(("main", AIMessage(content=response)))
     else:
         # answer from the filtering model
         with st.chat_message("assistant"):
-            st.markdown(pre_check)
-        st.session_state.messages.append(AIMessage(content=pre_check))
+            st.markdown(st.session_state.filter_emoji + " " + pre_check)
+        st.session_state.messages.append(("filter", AIMessage(content=pre_check)))
 
 save()
 

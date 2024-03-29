@@ -1,5 +1,5 @@
 {
-    "scenario": "Can I help you, Newcomer?",
+    "welcome": "Can I help you, Newcomer?",
     "human": "Newcomer",
     "assistant": "Tim",
     "utterances": [],
@@ -8,5 +8,6 @@
             "be expected by an agent tasked to welcome newcomers at a company.",
             "be expressed in English, French, or Korean."
         ],
-    "provider": "openai"
+    "utterer": "anthropic-sonnet",
+    "filter_emoji": ":face_with_one_eyebrow_raised:"
 }

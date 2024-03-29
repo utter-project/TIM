@@ -1,8 +1,9 @@
 {
-    "scenario": "Can I help you, Human?",
+    "welcome": "Can I help you, Human?",
     "human": "Human",
     "assistant": "Assistant",
     "utterances": [],
     "help": "Just ask, I'll answer.",
-    "provider": "openai"
+    "utterer": "openai-gpt-3.5-turbo",
+    "filter_emoji": ":hugging_face:"
 }

@@ -1,11 +1,9 @@
-from langchain_openai import ChatOpenAI
-from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 import streamlit as st
 
-from app.common import get_role, MODELS, parameters, save, upload
+from app.common import get_role, connect, save, upload
 
 if "scenario" not in st.session_state:
     params = st.query_params
@@ -14,26 +12,15 @@ if "scenario" not in st.session_state:
     else:
         upload("default")
 
-utterer = st.session_state.utterer
-parameters["model"] = MODELS[utterer]["model"]
+utterer = connect(st.session_state.utterer)
+filterer = connect(st.session_state.filterer)
 
-if utterer.startswith("anthropic"):
-    llm = ChatAnthropic(**{
-            **{"anthropic_api_url": MODELS[utterer]["base_url"], "anthropic_api_key": MODELS[utterer]["api_key"]},
-            **parameters
-        })
-else:
-    llm = ChatOpenAI(**{
-            **{"base_url": MODELS[utterer]["base_url"], "api_key": MODELS[utterer]["api_key"]},
-            **parameters
-        })
-    
 parser = StrOutputParser()
 
 help = """Note that the conversation is saved to a log file after each turn of utterance and response."""
 extract = lambda ms: [m for _, m in ms]
 
-def check(llm=llm, parser=parser):
+def check(llm=utterer, parser=parser):
 
     system = """You act as a filter in front of a specialized agent.
 Respond GO to the utterance if it respects all the following guidelines, otherwise explain politely that you cannot answer that request, with a short, to the point, justification, in English, if you decide to reject it.\n
@@ -52,7 +39,7 @@ st.subheader(st.session_state.welcome)
 
 for (source, message) in st.session_state.messages[1:]:
     with st.chat_message(get_role(message)):
-        st.markdown(((st.session_state.filter_emoji + " ") if "filter" == source else "") + message.content)
+        st.markdown(((st.session_state.filter_emoji + " ") if "filterer" == source else "") + message.content)
 
 if utterance := st.chat_input("try me!"):
     st.session_state.messages.append(("chat_input", HumanMessage(content=utterance)))
@@ -64,14 +51,14 @@ if utterance := st.chat_input("try me!"):
     if pre_check.startswith("GO"):
         # answer from the main model, streamed
         with st.chat_message("assistant"):
-            stream = llm.stream(extract(st.session_state.messages))
+            stream = utterer.stream(extract(st.session_state.messages))
             response = st.write_stream(stream)
-            st.session_state.messages.append(("main", AIMessage(content=response)))
+            st.session_state.messages.append(("utterer", AIMessage(content=response)))
     else:
         # answer from the filtering model
         with st.chat_message("assistant"):
             st.markdown(st.session_state.filter_emoji + " " + pre_check)
-        st.session_state.messages.append(("filter", AIMessage(content=pre_check)))
+        st.session_state.messages.append(("filterer", AIMessage(content=pre_check)))
 
 save()
 

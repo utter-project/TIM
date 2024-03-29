@@ -3,6 +3,8 @@ import streamlit as st
 from datetime import datetime
 import langchain_core
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
 
 
 MODELS = {
@@ -13,11 +15,9 @@ MODELS = {
     "anthropic-sonnet": {"model": "claude-3-sonnet-20240229", "api_key": os.environ["ANTHROPIC_API_KEY"], "base_url": "https://api.anthropic.com"}
 }
 
-default = {
+DEFAULT = {
         "temperature": 0.7
     }
-
-parameters = default.copy()
 
 get_stamp = lambda c: datetime.now().strftime(f"%Y%m%d{c}%H%M%S")
 
@@ -27,13 +27,16 @@ serialize_messages = lambda ms: [{"source": s, "role": get_role(m), "content": m
 def save():
     utterer = MODELS[st.session_state.utterer].copy()
     del utterer["api_key"]
+    filterer = MODELS[st.session_state.filterer].copy()
+    del filterer["api_key"]
     interaction = {
         "scenario": st.session_state.scenario,
         "human": st.session_state.human,
         "assistant": st.session_state.assistant,
         "filters": st.session_state.filters,
         "messages": serialize_messages(st.session_state.messages),
-        "utterer": utterer
+        "utterer": utterer,
+        "filterer": filterer,
     }
     if "help" in st.session_state:
         interaction["help"] = st.session_state.help
@@ -64,11 +67,13 @@ def upload(name="default"):
             if "human" in scenario else "Human"
         st.session_state.assistant = scenario["assistant"]\
             if "assistant" in scenario else "Agent"
+        st.session_state.utterer = scenario["utterer"]
+        st.session_state.filterer = scenario["filterer"]\
+            if "filterer" in scenario else scenario["utterer"]
         st.session_state.filters = scenario["filters"]\
             if "filters" in scenario else ["be polite."]
         st.session_state.filter_emoji = scenario["filter_emoji"]\
             if "filter_emoji" in scenario else ":face_with_one_eyebrow_raised:"
-        st.session_state.utterer = scenario["utterer"]
 
     system = dict()
     parts = ["persona", "principles", "content"]
@@ -82,3 +87,21 @@ def upload(name="default"):
         st.session_state.messages = [
                 ("application", SystemMessage(content='\n'.join([system[p] for p in parts])))
             ]
+
+def connect(llm, default=DEFAULT, models=MODELS):
+
+    parameters = default.copy()
+    parameters["model"] = models[llm]["model"]
+
+    if llm.startswith("anthropic"):
+        client = ChatAnthropic(**{
+                **{"anthropic_api_url": models[llm]["base_url"], "anthropic_api_key": models[llm]["api_key"]},
+                **parameters
+            })
+    else:
+        client = ChatOpenAI(**{
+                **{"base_url": models[llm]["base_url"], "api_key": models[llm]["api_key"]},
+                **parameters
+            })
+        
+    return client

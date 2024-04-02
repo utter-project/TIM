@@ -88,9 +88,9 @@ def upload(name="default"):
                 ("application", SystemMessage(content='\n'.join([system[p] for p in parts])))
             ]
 
-def connect(llm, default=DEFAULT, models=MODELS):
+def connect(llm, params=DEFAULT, models=MODELS):
 
-    parameters = default.copy()
+    parameters = params.copy()
     parameters["model"] = models[llm]["model"]
 
     if llm.startswith("anthropic"):

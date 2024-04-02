@@ -13,7 +13,7 @@ if "scenario" not in st.session_state:
         upload("default")
 
 utterer = connect(st.session_state.utterer)
-filterer = connect(st.session_state.filterer)
+filterer = connect(st.session_state.filterer, {"temperature": 0})
 
 parser = StrOutputParser()
 

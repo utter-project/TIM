@@ -4,6 +4,6 @@
     "assistant": "Assistant",
     "utterances": [],
     "help": "Just ask, I'll answer.",
-    "utterer": "openai-gpt-3.5-turbo",
+    "utterer": "anthropic-sonnet",
     "filter_emoji": ":hugging_face:"
 }

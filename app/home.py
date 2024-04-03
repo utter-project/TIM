@@ -22,8 +22,8 @@ extract = lambda ms: [m for _, m in ms]
 
 def check(llm=utterer, parser=parser):
 
-    system = """You act as a filter in front of a specialized agent.
-Respond GO to the utterance if it respects all the following guidelines, otherwise explain politely that you cannot answer that request, with a short, to the point, justification, in English, if you decide to reject it.\n
+    system = """You only act as a filter in front of a specialized agent.
+Respond OK to the utterance if it respects the following guidelines, or politely explain that you cannot answer that request, with a short, to the point, justification, in English, if you decide to reject it.\n
 A valid utterance should:
 {}""".format("- " + "\n- ".join(st.session_state.filters))
 
@@ -48,7 +48,7 @@ if utterance := st.chat_input("try me!"):
 
     # all inputs are first checked by a filtering LLM
     pre_check = check()
-    if pre_check.startswith("GO"):
+    if pre_check.startswith("OK"):
         # answer from the main model, streamed
         with st.chat_message("assistant"):
             stream = utterer.stream(extract(st.session_state.messages))

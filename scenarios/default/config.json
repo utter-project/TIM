@@ -1,9 +1,9 @@
 {
-    "welcome": "Can I help you, Human?",
-    "human": "Human",
-    "assistant": "Assistant",
-    "utterances": [],
-    "help": "Just ask, I'll answer.",
-    "utterer": "anthropic-sonnet",
-    "filter_emoji": ":hugging_face:"
+  "welcome" : "Can I help you, Human?",
+  "human" : "Human",
+  "assistant" : "Assistant",
+  "utterances" : [],
+  "help" : "Just ask, I'll answer.",
+  "utterer" : "openai-gpt-4o",
+  "filter_emoji" : ":hugging_face:"
 }

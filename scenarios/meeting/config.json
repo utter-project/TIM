@@ -1,0 +1,16 @@
+{
+  "welcome" : "Hi, I'm TiM your meeting assistant !",
+  "human" : "User",
+  "assistant" : "Tim",
+  "utterances" : [],
+  "help" : "Sorry you missed the last meeting ! Ask any legitimate questions, in English, French or Korean.",
+  "utterer" : "nle",
+  "filterer" : "openai-gpt-4o",
+  "filters" : [
+    "be expressed in English, French, or Korean",
+    "not contain toxic content",
+    "contain questions and utterances expected for a conversational meeting assistant such as: greetings, questions about meetings or project, clarification, acknowledgement and closure"
+  ],
+  "filter_emoji" : ":bell:",
+  "principle_emoji" : ":face_with_one_eyebrow_raised:"
+}

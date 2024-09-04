@@ -1,6 +1,6 @@
 # Trust In Me
 
-TIM is a trustworthy onboarding agent. Or at least that's the intent: it's a demonstration platform for Naver Labs Europe's In Bot We Trust project.
+TIM is a trustworthy  agent. Or at least that's the intent: it's a demonstration platform for UTTER project.
 
 ## Installation
 

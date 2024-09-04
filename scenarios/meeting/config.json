@@ -4,8 +4,8 @@
   "assistant" : "Tim",
   "utterances" : [],
   "help" : "Sorry you missed the last meeting ! Ask any legitimate questions, in English, French or Korean.",
-  "utterer" : "nle",
-  "filterer" : "openai-gpt-4o",
+  "utterer" : "openai-gpt-4o",
+  "filterer" : "nle",
   "filters" : [
     "be expressed in English, French, or Korean",
     "not contain toxic content",

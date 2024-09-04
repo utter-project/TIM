@@ -13,12 +13,13 @@ MODELS = {
     #"local": {"model": "mistral-ins-7b-q4", "api_key": "not-needed", "base_url": "http://127.0.0.1:1337/"},
     "local": {"model": "gemma-2b", "api_key": "not-needed", "base_url": "http://127.0.0.1:1337/"},
     #"nle": {"model": "phi3:instruct", "api_key": "not-needed", "base_url": "http://10.57.16.172:11434"},
-    "nle": {"model": "llama3:70b-instruct-fp16", "api_key": "not-needed", "base_url": "http://10.57.16.172:11434"},
+    #"nle": {"model": "phi3:14b-medium-128k-instruct-f16", "api_key": "not-needed", "base_url": "http://10.57.16.172:11434"},
+    "nle": {"model": "llama3:latest", "api_key": "not-needed", "base_url": "http://10.57.16.172:11434"},
     "openai-gpt-3.5-turbo": {"model": "gpt-3.5-turbo-0125",  "api_key": os.environ["OPENAI_API_KEY"], "base_url": "https://api.openai.com/v1"},
     "openai-gpt-4": {"model": "gpt-4-0125-preview",  "api_key": os.environ["OPENAI_API_KEY"], "base_url": "https://api.openai.com/v1"},
     "openai-gpt-4o": {"model": "gpt-4o-2024-05-13",  "api_key": os.environ["OPENAI_API_KEY"], "base_url": "https://api.openai.com/v1"}
-#    "anthropic-haiku": {"model": "claude-3-haiku-20240307", "api_key": os.environ["ANTHROPIC_API_KEY"], "base_url": "https://api.anthropic.com"},
-#    "anthropic-sonnet": {"model": "claude-3-sonnet-20240229", "api_key": os.environ["ANTHROPIC_API_KEY"], "base_url": "https://api.anthropic.com"}
+    #"anthropic-haiku": {"model": "claude-3-haiku-20240307", "api_key": os.environ["ANTHROPIC_API_KEY"], "base_url": "https://api.anthropic.com"},
+    #"anthropic-sonnet": {"model": "claude-3-sonnet-20240229", "api_key": os.environ["ANTHROPIC_API_KEY"], "base_url": "https://api.anthropic.com"}
 }
 
 DEFAULT = {

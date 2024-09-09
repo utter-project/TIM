@@ -18,3 +18,7 @@ streamlit run app/home.py
 ## Contribution
 
 To contribute to this project, please clone it and follow the classic pull request process.
+
+## Acknowledgement
+
+This work was done in the framework of the UTTER EU project
